@@ -5,39 +5,50 @@ import PokemonCard from "./components/PokemonCard";
 const inputEl = document.querySelector("input");
 const pokemonRow = document.querySelector("[data-pokemon-row]");
 
-
-// iterate pokeman data
-
-for (let obj of data){
-    const { name,image,description,link } =obj;
-
-   
-    pokemonRow.appendChild(PokemonCard(name,image,description,link));
+// render
+function renderPokemons(list){
+    // empty previous content
+    pokemonRow.innerHTML="";
+    for(let obj of list){
+        const { name,image,description,link } =obj;
+        const pokemon = PokemonCard(name,image,description,link);
+        pokemonRow.appendChild(pokemon);
+    }
 }
 
-// function PokemonCard(name,image,description,link){
-//     const div = document.createElement("div");
-    
-//     div.classList.add("col");
-//     div.innerHTML=`
-//     <div class="card">
-//     <img src="${image}" class="card-img-top" alt="...">
-//     <div class="card-body">
-//       <h5 class="card-title">${name}</h5>
-//     <p class="card-text">${description}</p>
-//     <a href="${link}" class="btn btn-warning" target="_blank">Visit</a>
+renderPokemons(data);
 
-//     </div>
-//   </div>
-//     `;
 
-//     return div;
+// filter functionality
+inputEl.addEventListener("input",(e) => {
+    const CurrentInput = e.target.value.toLowerCase().trim();
+    console.log(CurrentInput, data);
 
-// }
- 
+    const filterPokemons = data.filter((obj) =>
+        obj.name.toLowerCase().includes(CurrentInput)
+);
+if(filterPokemons.length === 0){
+    renderPokemons([
+        {
+            name:"Not found",
+            image:"",
+            description:"Dusra type kro",
+            link:"",
+
+    },
+]);
+
+return;
+}
+
+renderPokemons(filterPokemons);
+});
+
+
 // add keyboard functionality
 document.addEventListener("keyup", (input) => {
     if (input.key === "/"){ 
+        // console.log(`slash pressed`);
     inputEl.focus();
     }
 });
