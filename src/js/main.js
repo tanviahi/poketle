@@ -1,111 +1,71 @@
-import { shuffle } from 'fast-shuffle';
+import { shuffle } from "fast-shuffle";
+import Fuse from "fuse.js";
 
 import data from "./data.json";
 import PokemonCard from "./components/PokemonCard";
 
-// Dom selection
+// DOM Selection
 const inputEl = document.querySelector("input");
 const pokemonRow = document.querySelector("[data-pokemon-row]");
 
-// render
+// Render
 function renderPokemons(list) {
-    // empty previous content
-    pokemonRow.innerHTML = "";
+  // Empty the previous content
+  pokemonRow.innerHTML = "";
 
-    // using for loop
-
-    // for(let obj of list){
-    //     const { name,image,description,link } =obj;
-    //     const pokemon = PokemonCard(name,image,description,link);
-    //     pokemonRow.appendChild(pokemon);
-    // }
-
-
-    // using for each
-    list.forEach((pokemonObj) => {
-        const { name, image, description, link } = pokemonObj;
-        const pokemon = PokemonCard(name, image, description, link);
-        pokemonRow.appendChild(pokemon);
-    });
-
+  list.forEach((pokemonObj) => {
+    const { name, image, description, link } = pokemonObj;
+    const pokemon = PokemonCard(name, image, description, link);
+    pokemonRow.appendChild(pokemon);
+  });
 }
 
-// renderPokemons(shuffle(data));
-
-
-// function create 
+// Filtering
 function renderFilterPokemons(input) {
+  // const filteredPokemons = data.filter((obj) =>
+  //   obj.name.toLowerCase().includes(input)
+  // );
 
+  if (!input) {
+    return renderPokemons(data);
+  }
 
-    if(input === ""){
-        return renderFilterPokemons(data);
-    }
-    const fuse = new Fuse(data,{
-        keys: ["name"],
-    });
-    const filterPokemons = data.filter((obj) =>
-        obj.name.toLowerCase().includes(input)
-    );
+  const fuse = new Fuse(data, {
+    keys: ["name"],
+  });
 
+  const filteredPokemons = fuse.search(input).map((obj) => obj.item);
 
-    // fallback card  (other words)
-    if (!filterPokemons.length) {
-        renderPokemons([
-            {
-                name: "Not found",
-                image: "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png",
-                description: "Try another one..",
-                link: "",
+  // Fallback Pokemon Card
+  if (!filteredPokemons.length) {
+    renderPokemons([
+      {
+        name: "Not Found",
+        image:
+          "https://i.pinimg.com/originals/11/52/0c/11520cf1cc72ad1aab32fb3f26685619.jpg",
+        description: "Try a different search term",
+        link: "https://pokemon.com",
+      },
+    ]);
 
-            },
-        ]);
+    return;
+  }
 
-        return;
-    }
-
-    renderPokemons(filterPokemons);
+  renderPokemons(filteredPokemons);
 }
 
-// filter functionality
+// Listen for input
 inputEl.addEventListener("input", (e) => {
-    const currentInput = e.target.value.toLowerCase().trim();
-    renderFilterPokemons(currentInput);
-
-}
-//     console.log(CurrentInput, data);
-
-//     const filterPokemons = data.filter((obj) =>
-//         obj.name.toLowerCase().includes(CurrentInput)
-// );
-
-
-// // fallback card  (other words)
-// if(!filterPokemons.length){
-//     renderPokemons([
-//         {
-//             name:"Not found",
-//             image:"https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png",
-//             description:"Try another one..",
-//             link:"",
-
-//     },
-// ]);
-
-// return;
-// }
-
-// renderPokemons(filterPokemons);
-// });
-
-
-// add keyboard functionality
-document.addEventListener("keyup", (input) => {
-    if (input.key === "/") {
-        // console.log(`slash pressed`);
-        inputEl.focus();
-    }
+  const currentInput = e.target.value.toLowerCase().trim();
+  renderFilterPokemons(currentInput);
 });
 
+// Add keyboard functionality
+document.addEventListener("keyup", (event) => {
+  if (event.key === "/") {
+    inputEl.focus();
+  }
+});
 
-// initial rendering
+// Inital Rendering
 renderPokemons(shuffle(data));
