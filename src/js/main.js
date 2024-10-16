@@ -1,3 +1,5 @@
+import {shuffle} from 'fast-shuffle';
+
 import data from "./data.json";
 import PokemonCard from "./components/PokemonCard";
 
@@ -9,14 +11,26 @@ const pokemonRow = document.querySelector("[data-pokemon-row]");
 function renderPokemons(list){
     // empty previous content
     pokemonRow.innerHTML="";
-    for(let obj of list){
-        const { name,image,description,link } =obj;
-        const pokemon = PokemonCard(name,image,description,link);
-        pokemonRow.appendChild(pokemon);
-    }
+
+// using for loop
+
+    // for(let obj of list){
+    //     const { name,image,description,link } =obj;
+    //     const pokemon = PokemonCard(name,image,description,link);
+    //     pokemonRow.appendChild(pokemon);
+    // }
+
+
+    // using for each
+    list.forEach((pokemonObj) => {
+        const { name,image,description,link } = pokemonObj;
+     const pokemon = PokemonCard(name,image,description,link);
+       pokemonRow.appendChild(pokemon);
+    });
+
 }
 
-renderPokemons(data);
+// renderPokemons(shuffle(data));
 
 
 // filter functionality
@@ -27,12 +41,15 @@ inputEl.addEventListener("input",(e) => {
     const filterPokemons = data.filter((obj) =>
         obj.name.toLowerCase().includes(CurrentInput)
 );
-if(filterPokemons.length === 0){
+
+
+// fallback card  (other words)
+if(!filterPokemons.length){
     renderPokemons([
         {
             name:"Not found",
-            image:"",
-            description:"Dusra type kro",
+            image:"https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png",
+            description:"Try another one..",
             link:"",
 
     },
@@ -54,3 +71,5 @@ document.addEventListener("keyup", (input) => {
 });
 
 
+// initial rewndering
+renderPokemons(shuffle(data));
